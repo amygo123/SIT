@@ -603,7 +603,6 @@ void BuildTabs()
             }
         }
 
-    }
 
 async System.Threading.Tasks.Task RefreshInventoryAsync(string input, bool force = false)
 {
