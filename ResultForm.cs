@@ -174,28 +174,33 @@ string _invCurrentWarehouse = "__ALL__";
             b.Font = UIStyle.Body;
         }
 
+        
         void BuildInventoryUi()
-{
-    // 同页签底部库存面板（默认展开）
-    _invPanel = new Panel { Dock = DockStyle.Bottom, Height = 280, Padding = new Padding(12), BackColor = Color.White };
-    Controls.Add(_invPanel);
+        {
+            // Create inventory panel and attach to the same host as the trend chart to ensure it's visible
+            _invPanel = new Panel { Height = 280, Padding = new Padding(12), BackColor = Color.White };
+            _invPrimaryChips = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 36, AutoScroll = true };
+            _invSummary = new Label { Dock = DockStyle.Top, Height = 22, TextAlign = ContentAlignment.MiddleLeft, Font = UIStyle.Body };
+            _invMatrix = new InventoryMatrixControl { Dock = DockStyle.Fill };
+            _invMatrix.SetThreshold(_cfg.inventory_low_threshold ?? 10);
+            var moreBtn = new Button { Text = "更多仓库…", Dock = DockStyle.Bottom, Height = 28 };
+            moreBtn.Click += (s, e) => ShowWarehousePicker();
 
-    _invPrimaryChips = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 36, AutoScroll = true };
-    _invPanel.Controls.Add(_invPrimaryChips);
+            _invPanel.Controls.Add(_invMatrix);
+            _invPanel.Controls.Add(_invSummary);
+            _invPanel.Controls.Add(_invPrimaryChips);
+            _invPanel.Controls.Add(moreBtn);
 
-    _invSummary = new Label { Dock = DockStyle.Top, Height = 22, TextAlign = ContentAlignment.MiddleLeft, Font = UIStyle.Body };
-    _invPanel.Controls.Add(_invSummary);
+            // choose a host that already exists and is visible in the Overview tab
+            Control host = null;
+            try { host = _pvTrend?.Parent; } catch { }
+            if (host == null) host = this;
 
-    _invMatrix = new InventoryMatrixControl { Dock = DockStyle.Fill };
-    _invMatrix.SetThreshold(_cfg.inventory_low_threshold ?? 10);
-    _invPanel.Controls.Add(_invMatrix);
-
-    var moreBtn = new Button { Text = "更多仓库…", Dock = DockStyle.Bottom, Height = 28 };
-    moreBtn.Click += (s, e) => ShowWarehousePicker();
-    _invPanel.Controls.Add(moreBtn);
-
-    _invClient = new InventoryClient(_cfg.inventory_api_url ?? "http://192.168.40.97:8000/inventory", _cfg.inventory_timeout_seconds ?? 4);
-}
+            host.Controls.Add(_invPanel);
+            _invPanel.Dock = DockStyle.Bottom;
+            _invPanel.BringToFront();
+        }
+        
 
 
 void BuildTabs()
