@@ -699,3 +699,4 @@ void ShowWarehousePicker()
 }
 
 }
+}
