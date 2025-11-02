@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,11 +13,11 @@ namespace StyleWatcherWin
         private readonly string _apiUrl;
         private readonly int _timeoutSeconds;
 
-        public InventoryClient(HttpClient http, string apiUrl, int timeoutSeconds = 4)
+        public InventoryClient(string apiUrl, int? timeoutSeconds = 4)
         {
-            _http = http;
+            _http = new HttpClient();
             _apiUrl = apiUrl.TrimEnd('/');
-            _timeoutSeconds = Math.Max(1, timeoutSeconds);
+            _timeoutSeconds = Math.Max(1, timeoutSeconds ?? 4);
         }
 
         public async Task<List<InventoryRow>> FetchAsync(string input, CancellationToken ct = default)
@@ -56,7 +55,7 @@ namespace StyleWatcherWin
             }
             catch
             {
-                // unexpected payload -> ignore
+                // 非期待格式：忽略
             }
             return list;
         }
